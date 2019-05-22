@@ -15,8 +15,10 @@
  */
 package de.j4velin.pedometer.ui;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -75,7 +77,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
     private GameConnector gc;
 
 
-    private int todayOffset, total_start, goal, since_boot, total_days;
+    private int todayOffset, total_start, goal, since_boot, total_days, steps_today, stepsTaken;
     public final static NumberFormat formatter = NumberFormat.getInstance(Locale.getDefault());
     private boolean showSteps = true;
 
@@ -93,6 +95,23 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         } else {
             getActivity().startService(new Intent(getActivity(), SensorListener.class));
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Database db = Database.getInstance(getActivity());
+        if (BuildConfig.DEBUG) db.logState();
+        // read todays offset
+        todayOffset = db.getSteps(Util.getToday());
+
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
+
+        goal = prefs.getInt("goal", Fragment_Settings.DEFAULT_GOAL);
+        since_boot = db.getCurrentSteps();
+
+        stepsTaken = Math.max(todayOffset + since_boot, 0);
     }
 
     @Override
@@ -136,6 +155,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         pg.setDrawValueInPie(false);
         pg.setUsePieRotation(true);
         pg.startAnimation();
+
         return v;
     }
 
@@ -145,7 +165,6 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
 
         Database db = Database.getInstance(getActivity());
-
         if (BuildConfig.DEBUG) db.logState();
         // read todays offset
         todayOffset = db.getSteps(Util.getToday());
@@ -207,25 +226,25 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
 
 
          //register a sensorlistener to live update the UI if a step is taken
-//        SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-//        Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-//        if (sensor == null) {
-//            new AlertDialog.Builder(getActivity()).setTitle(R.string.no_sensor)
-//                    .setMessage(R.string.no_sensor_explain)
-//                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-//                        @Override
-//                        public void onDismiss(final DialogInterface dialogInterface) {
-//                            getActivity().finish();
-//                        }
-//                    }).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(final DialogInterface dialogInterface, int i) {
-//                    dialogInterface.dismiss();
-//                }
-//            }).create().show();
-//        } else {
-//            sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
-//        }
+        SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if (sensor == null) {
+            new AlertDialog.Builder(getActivity()).setTitle(R.string.no_sensor)
+                    .setMessage(R.string.no_sensor_explain)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(final DialogInterface dialogInterface) {
+                            getActivity().finish();
+                        }
+                    }).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            }).create().show();
+        } else {
+            sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
+        }
 
         since_boot -= pauseDifference;
 
@@ -235,6 +254,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         db.close();
 
         stepsDistanceChanged();
+
     }
 
     /**
@@ -255,8 +275,10 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             ((TextView) getView().findViewById(R.id.unit)).setText(unit);
         }
 
+
         updatePie();
         updateBars();
+        //stepsTaken = Math.max(todayOffset + since_boot, 0);
     }
 
     @Override
@@ -336,9 +358,10 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        gc.updateSteps(50, new GameConnectorCallback() {
+        gc.updateSteps(steps_today - stepsTaken, new GameConnectorCallback() {
             @Override
             public void onResponseCallback(String response) {
+                //Log.e("CURRENT STEPS: ", String.valueOf(db.getCurrentSteps()));
                 Log.e("ON DESTROY CALLBACK : ",response);
             }
         });
@@ -352,7 +375,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
     private void updatePie() {
         if (BuildConfig.DEBUG) Logger.log("UI - update steps: " + since_boot);
         // todayOffset might still be Integer.MIN_VALUE on first start
-        int steps_today = Math.max(todayOffset + since_boot, 0);
+        steps_today = Math.max(todayOffset + since_boot, 0);
 
         sliceCurrent.setValue(steps_today);
         if (goal - steps_today > 0) {
