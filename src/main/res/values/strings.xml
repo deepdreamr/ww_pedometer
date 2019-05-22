@@ -60,4 +60,12 @@
     <string name="no_sensor_explain">This app requires a dedicated hardware step sensor - which your device does not have. This app won\'t run on your device.</string>
     <string name="permission_external_storage">No permission to access external storage</string>
     <string name="notification_settings">Notification settings</string>
+
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="connectBtn">Connect</string>
+    <string name="logoutBtn">Logout</string>
+    <string name="signed_in_as">Signed In as:</string>
+    <string name="successful_connection">Login success!</string>
+    <string name="error_connection">Login failed</string>
 </resources>

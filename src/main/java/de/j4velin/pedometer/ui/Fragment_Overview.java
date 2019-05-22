@@ -15,6 +15,7 @@
  */
 package de.j4velin.pedometer.ui;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -159,6 +160,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         return v;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onResume() {
         super.onResume();
@@ -186,7 +188,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             // Stay at the current activity.
             //Log.e("LOGGED IN:","TRUE");
             changeLayouts(loginLayout, logoutLayout);
-            welcomeText.setText("Bejelentkezve, mint: " + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+            welcomeText.setText(getString(R.string.signed_in_as) + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
         }
 
 
@@ -197,14 +199,14 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
                     @Override
                     public void onResponseCallback(String response) {
                         if (response.equals("true")) {
-                            Toast.makeText(getActivity().getApplication().getApplicationContext(), "Sikeres bejelentkezés!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.successful_connection, Toast.LENGTH_SHORT).show();
                             SaveSharedPreference.setUserName(getActivity().getApplication().getApplicationContext(),inputUserName.getText().toString());
                             SaveSharedPreference.setUserPass(getActivity().getApplication().getApplicationContext(),inputPassword.getText().toString());
 
                             changeLayouts(loginLayout, logoutLayout);
-                            welcomeText.setText("Bejelentkezve, mint: " + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+                            welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
                         } else {
-                            Toast.makeText(getActivity().getApplication().getApplicationContext(), "Sikertelen bejelentkezés!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.error_connection, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

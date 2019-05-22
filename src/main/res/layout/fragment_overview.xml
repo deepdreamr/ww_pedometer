@@ -98,14 +98,14 @@
         android:layout_below="@+id/bargraph">
 
         <EditText
-            android:hint="Felhasznalonev"
+            android:hint="@string/username"
             android:id="@+id/username"
             android:inputType="text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <EditText
-            android:hint="Jelszo"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:id="@+id/password"
             android:layout_below="@id/username"
@@ -114,7 +114,7 @@
 
         <Button
             android:id="@+id/connectBtn"
-            android:text="Connect"
+            android:text="@string/connectBtn"
             android:layout_below="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -130,13 +130,13 @@
         <TextView
             android:gravity="center_horizontal"
             android:id="@+id/welcomeText"
-            android:textSize="25dp"
+            android:textSize="25sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/logoutBtn"
-            android:text="Logout"
+            android:text="@string/logoutBtn"
             android:layout_below="@+id/welcomeText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
