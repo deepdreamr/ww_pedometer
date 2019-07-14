@@ -296,6 +296,15 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         Database db = Database.getInstance(getActivity());
         db.saveCurrentSteps(since_boot);
         db.close();
+
+        //save steps in the  ww pedometer database
+        gc.updateSteps(steps_today - stepsTaken, new GameConnectorCallback() {
+            @Override
+            public void onResponseCallback(String response) {
+                //Log.e("CURRENT STEPS: ", String.valueOf(db.getCurrentSteps()));
+                Log.e("ON PAUSE CALLBACK : ",response);
+            }
+        });
     }
 
     @Override
@@ -322,20 +331,10 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
 
     @Override
     public void onSensorChanged(final SensorEvent event) {
-//        if (stepAccumulator < 1) {
-//            stepAccumulator = (int) event.values[0];
-//        }
 
         currentSteps += (int) event.values[0] - stepAccumulator;
         stepAccumulator = (int) event.values[0];
 
-
-//        gc.updateSteps(currentSteps, new GameConnectorCallback() {
-//            @Override
-//            public void onResponseCallback(String response) {
-//                Log.e("Tokens:", response.toString());
-//            }
-//        });
 
         if (BuildConfig.DEBUG) Logger.log(
                 "UI - sensorChanged | todayOffset: " + todayOffset + " since boot: " +

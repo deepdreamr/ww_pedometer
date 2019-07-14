@@ -12,7 +12,7 @@ buildscript {
             classpath rootProject.ext.gradle_classpath
         } else {
             logger.warn('classpath not found in rootProject')
-            classpath 'com.android.tools.build:gradle:3.0.1'
+            classpath 'com.android.tools.build:gradle:3.2.1'
         }
     }
 }
@@ -20,6 +20,8 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
+//    aaptOptions.cruncherEnabled = false
+//    aaptOptions.useNewCruncher = false
 
     if (rootProject.ext.has("compileSdkVersion")) {
         compileSdkVersion rootProject.ext.compileSdkVersion
@@ -29,43 +31,45 @@ android {
         compileSdkVersion = 27
         buildToolsVersion = "27.0.3"
     }
-
     defaultConfig {
-        applicationId "de.j4velin.pedometer"
+        applicationId 'ww.pedometer'
+        minSdkVersion 19
+        targetSdkVersion 26
     }
-
     signingConfigs {
         release
     }
-
     flavorDimensions "main"
-
     productFlavors {
         play {
             dimension "main"
+            minSdkVersion 19
+            applicationId 'ww.pedometer'
+            targetSdkVersion 26
         }
         fdroid {
             dimension "main"
+            minSdkVersion 19
+            applicationId 'ww.pedometer'
+            targetSdkVersion 26
         }
     }
-
-    lintOptions{
+    lintOptions {
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
     }
-
     buildTypes {
         release {
             signingConfig signingConfigs.release
             zipAlignEnabled true
+            shrinkResources true
             minifyEnabled true
-            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
         debug {
             debuggable true
             signingConfig signingConfigs.release
-            zipAlignEnabled true
+            zipAlignEnabled false
             minifyEnabled false
         }
     }
@@ -73,6 +77,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    compileSdkVersion 28
+    buildToolsVersion '27.0.3'
 }
 
 repositories {
