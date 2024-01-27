@@ -20,7 +20,7 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.android.ww_pedometer"
+    namespace = "com.android.application"
     if (rootProject.ext.has("compileSdkVersion")) {
         rootProject.ext.compileSdkVersion
         rootProject.ext.buildToolsVersion
@@ -89,6 +89,7 @@ dependencies {
     implementation 'com.github.j4velin.colorpicker:colorpicker:1.20.6'
     implementation 'com.github.j4velin.EazeGraph:EazeGraph:1.0.3'
     implementation 'com.google.android.apps.dashclock:dashclock-api:2.0.0'
+    implementation 'com.android.volley:volley:1.2.1'
     playImplementation 'com.google.android.gms:play-services-fitness:21.1.0'
     playImplementation 'com.google.android.gms:play-services-games:23.1.0'
     playImplementation 'com.google.android.gms:play-services-identity:18.0.1'
