@@ -1,11 +1,6 @@
 package de.j4velin.pedometer;
-
-import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,7 +13,7 @@ import de.j4velin.pedometer.widget.SaveSharedPreference;
 
 
 public class GameConnector {
-    private Context ctx;
+    private final Context ctx;
     private final String url ="http://www.test.walkingwarrior.hu/gateway.php";
 
     public GameConnector(Context c) {
@@ -30,18 +25,12 @@ public class GameConnector {
 
         String params = "?android-login=true&username=" + userName + "&password=" + password;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url + params,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.e("Response:", response);
-                        callback.onResponseCallback(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Something on error state
-            }
-        });
+                response -> {
+                    Log.e("Response:", response);
+                    callback.onResponseCallback(response);
+                }, error -> {
+                    //Something on error state
+                });
         queue.add(stringRequest);
     }
 
@@ -53,17 +42,9 @@ public class GameConnector {
 
         String params = "?update-steps=true&username=" + username + "&password=" + password + "&steps=" + steps;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url + params,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        callback.onResponseCallback(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Something on error state
-            }
-        });
+                response -> callback.onResponseCallback(response), error -> {
+                    //Something on error state
+                });
         queue.add(stringRequest);
     }
 }
