@@ -5,20 +5,19 @@ buildscript {
             url 'https://maven.google.com/'
             name 'Google'
         }
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         if (rootProject.ext.has("gradle_classpath")) {
             classpath rootProject.ext.gradle_classpath
         } else {
             logger.warn('classpath not found in rootProject')
-            classpath 'com.android.tools.build:gradle:8.2.2'
+            classpath 'com.android.tools.build:gradle:8.2.+'
         }
     }
 }
 
 apply plugin: 'com.android.application'
-
 android {
     namespace = "com.android.application"
     if (rootProject.ext.has("compileSdkVersion")) {
@@ -43,13 +42,13 @@ android {
             dimension "main"
             minSdkVersion 19
             applicationId 'ww.pedometer'
-            targetSdkVersion 26
+            targetSdk 34
         }
         fdroid {
             dimension "main"
             minSdkVersion 19
             applicationId 'ww.pedometer'
-            targetSdkVersion 26
+            targetSdk 34
         }
     }
     lintOptions {
@@ -81,7 +80,7 @@ repositories {
         url 'https://maven.google.com/'
         name 'Google'
     }
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -90,6 +89,7 @@ dependencies {
     implementation 'com.github.j4velin.EazeGraph:EazeGraph:1.0.3'
     implementation 'com.google.android.apps.dashclock:dashclock-api:2.0.0'
     implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.google.android.gms:play-services-base:18.3.0'
     playImplementation 'com.google.android.gms:play-services-fitness:21.1.0'
     playImplementation 'com.google.android.gms:play-services-games:23.1.0'
     playImplementation 'com.google.android.gms:play-services-identity:18.0.1'
@@ -104,7 +104,6 @@ if (project.file("key.properties").exists()) {
     props.load(new FileInputStream(project.file("key.properties.sample")))
 }
 
-android.signingConfigs.release.storeFile rootProject.file(props.keyStore)
 
 android.signingConfigs.release.storePassword props.keyStorePassword
 
