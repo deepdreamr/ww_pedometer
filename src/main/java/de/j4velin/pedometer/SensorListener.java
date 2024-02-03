@@ -169,7 +169,7 @@ public class SensorListener extends Service implements SensorEventListener {
         // Restart service in 500 ms
         ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
                 .set(AlarmManager.RTC, System.currentTimeMillis() + 500, PendingIntent
-                        .getService(this, 3, new Intent(this, SensorListener.class), 0));
+                        .getService(this, 3, new Intent(this, SensorListener.class), PendingIntent.FLAG_MUTABLE));
     }
 
     @Override

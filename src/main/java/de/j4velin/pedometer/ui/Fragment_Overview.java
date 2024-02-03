@@ -314,13 +314,13 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_split_count:
-                Dialog_Split.getDialog(getActivity(),
-                        total_start + Math.max(todayOffset + since_boot, 0)).show();
-                return true;
-            default:
-                return ((Activity_Main) getActivity()).optionsItemSelected(item);
+        if (item.getItemId() == R.id.action_split_count) {
+            Dialog_Split.getDialog(getActivity(),
+                    total_start + Math.max(todayOffset + since_boot, 0)).show();
+            return true;
+        }
+        else {
+            return ((Activity_Main) getActivity()).optionsItemSelected(item);
         }
     }
 

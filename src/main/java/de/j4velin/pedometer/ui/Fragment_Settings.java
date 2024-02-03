@@ -154,93 +154,92 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
         View v;
         final SharedPreferences prefs =
                 getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
-        switch (preference.getTitleRes()) {
-            case R.string.goal:
-                builder = new AlertDialog.Builder(getActivity());
-                final NumberPicker np = new NumberPicker(getActivity());
-                np.setMinValue(1);
-                np.setMaxValue(100000);
-                np.setValue(prefs.getInt("goal", 10000));
-                builder.setView(np);
-                builder.setTitle(R.string.set_goal);
-                builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        np.clearFocus();
-                        prefs.edit().putInt("goal", np.getValue()).commit();
-                        preference.setSummary(getString(R.string.goal_summary, np.getValue()));
-                        dialog.dismiss();
-                        getActivity().startService(new Intent(getActivity(), SensorListener.class)
-                                .putExtra("updateNotificationState", true));
-                    }
-                });
-                builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                Dialog dialog = builder.create();
-                dialog.getWindow().setSoftInputMode(
-                        WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                dialog.show();
-                break;
-            case R.string.step_size:
-                builder = new AlertDialog.Builder(getActivity());
-                v = getActivity().getLayoutInflater().inflate(R.layout.stepsize, null);
-                final RadioGroup unit = (RadioGroup) v.findViewById(R.id.unit);
-                final EditText value = (EditText) v.findViewById(R.id.value);
-                unit.check(
-                        prefs.getString("stepsize_unit", DEFAULT_STEP_UNIT).equals("cm") ? R.id.cm :
-                                R.id.ft);
-                value.setText(String.valueOf(prefs.getFloat("stepsize_value", DEFAULT_STEP_SIZE)));
-                builder.setView(v);
-                builder.setTitle(R.string.set_step_size);
-                builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            prefs.edit().putFloat("stepsize_value",
-                                    Float.valueOf(value.getText().toString()))
-                                    .putString("stepsize_unit",
-                                            unit.getCheckedRadioButtonId() == R.id.cm ? "cm" : "ft")
-                                    .apply();
-                            preference.setSummary(getString(R.string.step_size_summary,
-                                    Float.valueOf(value.getText().toString()),
-                                    unit.getCheckedRadioButtonId() == R.id.cm ? "cm" : "ft"));
-                        } catch (NumberFormatException nfe) {
-                            nfe.printStackTrace();
-                        }
-                        dialog.dismiss();
-                    }
-                });
-                builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.create().show();
-                break;
-            case R.string.import_title:
-            case R.string.export_title:
-                if (hasWriteExternalPermission()) {
-                    if (preference.getTitleRes() == R.string.import_title) {
-                        importCsv();
-                    } else {
-                        exportCsv();
-                    }
-                } else if (Build.VERSION.SDK_INT >= 23) {
-                    API23Wrapper.requestPermission(getActivity(),
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
-                } else {
-                    Toast.makeText(getActivity(), R.string.permission_external_storage,
-                            Toast.LENGTH_SHORT).show();
+        if (preference.getTitleRes() == R.string.goal) {
+            builder = new AlertDialog.Builder(getActivity());
+            final NumberPicker np = new NumberPicker(getActivity());
+            np.setMinValue(1);
+            np.setMaxValue(100000);
+            np.setValue(prefs.getInt("goal", 10000));
+            builder.setView(np);
+            builder.setTitle(R.string.set_goal);
+            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    np.clearFocus();
+                    prefs.edit().putInt("goal", np.getValue()).commit();
+                    preference.setSummary(getString(R.string.goal_summary, np.getValue()));
+                    dialog.dismiss();
+                    getActivity().startService(new Intent(getActivity(), SensorListener.class)
+                            .putExtra("updateNotificationState", true));
                 }
-                break;
-            case R.string.notification_settings:
-                API26Wrapper.launchNotificationSettings(getActivity());
-                break;
+            });
+            builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            Dialog dialog = builder.create();
+            dialog.getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            dialog.show();
+        }
+        else if (preference.getTitleRes() == R.string.step_size) {
+            builder = new AlertDialog.Builder(getActivity());
+            v = getActivity().getLayoutInflater().inflate(R.layout.stepsize, null);
+            final RadioGroup unit = (RadioGroup) v.findViewById(R.id.unit);
+            final EditText value = (EditText) v.findViewById(R.id.value);
+            unit.check(
+                    prefs.getString("stepsize_unit", DEFAULT_STEP_UNIT).equals("cm") ? R.id.cm :
+                            R.id.ft);
+            value.setText(String.valueOf(prefs.getFloat("stepsize_value", DEFAULT_STEP_SIZE)));
+            builder.setView(v);
+            builder.setTitle(R.string.set_step_size);
+            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        prefs.edit().putFloat("stepsize_value",
+                                        Float.valueOf(value.getText().toString()))
+                                .putString("stepsize_unit",
+                                        unit.getCheckedRadioButtonId() == R.id.cm ? "cm" : "ft")
+                                .apply();
+                        preference.setSummary(getString(R.string.step_size_summary,
+                                Float.valueOf(value.getText().toString()),
+                                unit.getCheckedRadioButtonId() == R.id.cm ? "cm" : "ft"));
+                    } catch (NumberFormatException nfe) {
+                        nfe.printStackTrace();
+                    }
+                    dialog.dismiss();
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.create().show();
+        }
+        else if (preference.getTitleRes() == R.string.import_title ||
+                 preference.getTitleRes() == R.string.export_title)
+        {
+            if (hasWriteExternalPermission()) {
+                if (preference.getTitleRes() == R.string.import_title) {
+                    importCsv();
+                } else {
+                    exportCsv();
+                }
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                API23Wrapper.requestPermission(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
+            } else {
+                Toast.makeText(getActivity(), R.string.permission_external_storage,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if(preference.getTitleRes() == R.string.notification_settings) {
+            API26Wrapper.launchNotificationSettings(getActivity());
         }
         return false;
     }

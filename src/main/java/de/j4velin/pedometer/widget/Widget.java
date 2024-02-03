@@ -38,7 +38,7 @@ public class Widget extends AppWidgetProvider {
 		final SharedPreferences prefs = context.getSharedPreferences("Widgets",
 				Context.MODE_PRIVATE);
 		final PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId,
-				new Intent(context, Activity_Main.class), 0);
+				new Intent(context, Activity_Main.class), PendingIntent.FLAG_MUTABLE);
 
 		final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
 		views.setOnClickPendingIntent(R.id.widget, pendingIntent);
