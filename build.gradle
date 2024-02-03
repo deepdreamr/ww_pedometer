@@ -17,9 +17,9 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.application'
+apply plugin: 'de.j4velin.pedometer'
 android {
-    namespace = "com.android.application"
+    namespace = "de.j4velin.pedometer"
     if (rootProject.ext.has("compileSdkVersion")) {
         rootProject.ext.compileSdkVersion
         rootProject.ext.buildToolsVersion
@@ -29,7 +29,7 @@ android {
         buildToolsVersion = "34.0.0"
     }
     defaultConfig {
-        applicationId 'ww.pedometer'
+        applicationId 'ww_pedometer'
         minSdkVersion 34
         targetSdkVersion 34
     }
@@ -41,13 +41,13 @@ android {
         play {
             dimension "main"
             minSdkVersion 19
-            applicationId 'ww.pedometer'
+            applicationId 'ww_pedometer'
             targetSdk 34
         }
         fdroid {
             dimension "main"
             minSdkVersion 19
-            applicationId 'ww.pedometer'
+            applicationId 'ww_pedometer'
             targetSdk 34
         }
     }
