@@ -24,7 +24,7 @@ android {
         rootProject.ext.compileSdkVersion
         rootProject.ext.buildToolsVersion
     } else {
-         logger.warn('compileSdkVersion not found in rootProject')
+        logger.warn('compileSdkVersion not found in rootProject')
         compileSdkVersion = 34
         buildToolsVersion = "34.0.0"
     }
@@ -107,6 +107,7 @@ if (project.file("key.properties").exists()) {
     props.load(new FileInputStream(project.file("key.properties.sample")))
 }
 
+android.signingConfigs.release.storeFile rootProject.file(props.keyStore)
 
 android.signingConfigs.release.storePassword props.keyStorePassword
 
