@@ -55,10 +55,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import de.j4velin.pedometer.BuildConfig;
+//import de.j4velin.pedometer.BuildConfig;
 import de.j4velin.pedometer.Database;
 import de.j4velin.pedometer.GameConnectorCallback;
-import de.j4velin.pedometer.R;
+//import de.j4velin.pedometer.R;
 import de.j4velin.pedometer.SensorListener;
 import de.j4velin.pedometer.util.API26Wrapper;
 import de.j4velin.pedometer.util.Logger;
@@ -102,7 +102,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
     public void onStart() {
         super.onStart();
         Database db = Database.getInstance(getActivity());
-        if (BuildConfig.DEBUG) db.logState();
+        //if (BuildConfig.DEBUG) db.logState();
         // read todays offset
         todayOffset = db.getSteps(Util.getToday());
 
@@ -117,7 +117,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        final View v = inflater.inflate(R.layout.fragment_overview, null);
+        /*final View v = inflater.inflate(R.layout.fragment_overview, null);
         stepsView = (TextView) v.findViewById(R.id.steps);
         totalView = (TextView) v.findViewById(R.id.total);
         averageView = (TextView) v.findViewById(R.id.average);
@@ -131,7 +131,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         logoutButton = (Button)v.findViewById(R.id.logoutBtn);
 
 
-        pg = (PieChart) v.findViewById(R.id.graph);
+        pg = (PieChart) v.findViewById(R.id.graph);*/
 
         gc = new GameConnector(getActivity().getApplication().getApplicationContext());
 
@@ -157,7 +157,8 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         pg.setUsePieRotation(true);
         pg.startAnimation();
 
-        return v;
+        return null;
+        //return v;
     }
 
     @SuppressLint("SetTextI18n")
@@ -167,7 +168,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
 
         Database db = Database.getInstance(getActivity());
-        if (BuildConfig.DEBUG) db.logState();
+        //if (BuildConfig.DEBUG) db.logState();
         // read todays offset
         todayOffset = db.getSteps(Util.getToday());
 
@@ -188,7 +189,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             // Stay at the current activity.
             //Log.e("LOGGED IN:","TRUE");
             changeLayouts(loginLayout, logoutLayout);
-            welcomeText.setText(getString(R.string.signed_in_as) + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+            //welcomeText.setText(getString(R.string.signed_in_as) + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
         }
 
 
@@ -199,14 +200,14 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
                     @Override
                     public void onResponseCallback(String response) {
                         if (response.equals("true")) {
-                            Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.successful_connection, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.successful_connection, Toast.LENGTH_SHORT).show();
                             SaveSharedPreference.setUserName(getActivity().getApplication().getApplicationContext(),inputUserName.getText().toString());
                             SaveSharedPreference.setUserPass(getActivity().getApplication().getApplicationContext(),inputPassword.getText().toString());
 
                             changeLayouts(loginLayout, logoutLayout);
-                            welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+                            //welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
                         } else {
-                            Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.error_connection, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.error_connection, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -231,7 +232,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         if (sensor == null) {
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.no_sensor)
+            /*new AlertDialog.Builder(getActivity()).setTitle(R.string.no_sensor)
                     .setMessage(R.string.no_sensor_explain)
                     .setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
@@ -243,7 +244,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
                 public void onClick(final DialogInterface dialogInterface, int i) {
                     dialogInterface.dismiss();
                 }
-            }).create().show();
+            }).create().show();*/
         } else {
             sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
         }
@@ -265,7 +266,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
      */
     private void stepsDistanceChanged() {
         if (showSteps) {
-            ((TextView) getView().findViewById(R.id.unit)).setText(getString(R.string.steps));
+            // ((TextView) getView().findViewById(R.id.unit)).setText(getString(R.string.steps));
         } else {
             String unit = getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE)
                     .getString("stepsize_unit", Fragment_Settings.DEFAULT_STEP_UNIT);
@@ -274,7 +275,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             } else {
                 unit = "mi";
             }
-            ((TextView) getView().findViewById(R.id.unit)).setText(unit);
+            //((TextView) getView().findViewById(R.id.unit)).setText(unit);
         }
 
 
@@ -291,7 +292,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
                     (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
             sm.unregisterListener(this);
         } catch (Exception e) {
-            if (BuildConfig.DEBUG) Logger.log(e);
+            //if (BuildConfig.DEBUG) Logger.log(e);
         }
         Database db = Database.getInstance(getActivity());
         db.saveCurrentSteps(since_boot);
@@ -309,18 +310,18 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        inflater.inflate(R.menu.main, menu);
+        //inflater.inflate(R.menu.main, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_split_count:
+            /*case R.id.action_split_count:
                 Dialog_Split.getDialog(getActivity(),
                         total_start + Math.max(todayOffset + since_boot, 0)).show();
-                return true;
+                return true;*/
             default:
-                return ((Activity_Main) getActivity()).optionsItemSelected(item);
+                return false; //((Activity_Main) getActivity()).optionsItemSelected(item);
         }
     }
 
@@ -336,9 +337,9 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         stepAccumulator = (int) event.values[0];
 
 
-        if (BuildConfig.DEBUG) Logger.log(
+      /*  if (BuildConfig.DEBUG) Logger.log(
                 "UI - sensorChanged | todayOffset: " + todayOffset + " since boot: " +
-                        event.values[0]);
+                        event.values[0]);*/
         if (event.values[0] > Integer.MAX_VALUE || event.values[0] == 0) {
             return;
         }
@@ -374,7 +375,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
      * count to distance.
      */
     private void updatePie() {
-        if (BuildConfig.DEBUG) Logger.log("UI - update steps: " + since_boot);
+        // if (BuildConfig.DEBUG) Logger.log("UI - update steps: " + since_boot);
         // todayOffset might still be Integer.MIN_VALUE on first start
         steps_today = Math.max(todayOffset + since_boot, 0);
 
@@ -424,7 +425,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
      */
     private void updateBars() {
         SimpleDateFormat df = new SimpleDateFormat("E", Locale.getDefault());
-        BarChart barChart = (BarChart) getView().findViewById(R.id.bargraph);
+        BarChart barChart = null; //(BarChart) getView().findViewById(R.id.bargraph);
         if (barChart.getData().size() > 0) barChart.clearChart();
         int steps;
         float distance, stepsize = Fragment_Settings.DEFAULT_STEP_SIZE;

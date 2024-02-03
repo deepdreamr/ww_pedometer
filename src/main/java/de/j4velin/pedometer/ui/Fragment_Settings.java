@@ -51,7 +51,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import de.j4velin.pedometer.Database;
-import de.j4velin.pedometer.R;
+//import de.j4velin.pedometer.R;
 import de.j4velin.pedometer.SensorListener;
 import de.j4velin.pedometer.util.API23Wrapper;
 import de.j4velin.pedometer.util.API26Wrapper;
@@ -67,7 +67,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.settings);
+//        addPreferencesFromResource(R.xml.settings);
 
         final SharedPreferences prefs =
                 getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
@@ -104,13 +104,13 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
 
         Preference goal = findPreference("goal");
         goal.setOnPreferenceClickListener(this);
-        goal.setSummary(getString(R.string.goal_summary, prefs.getInt("goal", DEFAULT_GOAL)));
+//        goal.setSummary(getString(R.string.goal_summary, prefs.getInt("goal", DEFAULT_GOAL)));
 
         Preference stepsize = findPreference("stepsize");
         stepsize.setOnPreferenceClickListener(this);
-        stepsize.setSummary(getString(R.string.step_size_summary,
+        /*stepsize.setSummary(getString(R.string.step_size_summary,
                 prefs.getFloat("stepsize_value", DEFAULT_STEP_SIZE),
-                prefs.getString("stepsize_unit", DEFAULT_STEP_UNIT)));
+                prefs.getString("stepsize_unit", DEFAULT_STEP_UNIT)));*/
 
         setHasOptionsMenu(true);
     }
@@ -133,19 +133,19 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-        inflater.inflate(R.menu.main, menu);
+//        inflater.inflate(R.menu.main, menu);
     }
 
     @Override
     public void onPrepareOptionsMenu(final Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_settings).setVisible(false);
-        menu.findItem(R.id.action_split_count).setVisible(false);
+        /*menu.findItem(R.id.action_settings).setVisible(false);
+        menu.findItem(R.id.action_split_count).setVisible(false);*/
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        return ((Activity_Main) getActivity()).optionsItemSelected(item);
+        return false;//((Activity_Main) getActivity()).optionsItemSelected(item);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
         final SharedPreferences prefs =
                 getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
         switch (preference.getTitleRes()) {
-            case R.string.goal:
+           /* case R.string.goal:
                 builder = new AlertDialog.Builder(getActivity());
                 final NumberPicker np = new NumberPicker(getActivity());
                 np.setMinValue(1);
@@ -240,7 +240,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
                 break;
             case R.string.notification_settings:
                 API26Wrapper.launchNotificationSettings(getActivity());
-                break;
+                break;*/
         }
         return false;
     }
@@ -260,7 +260,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             final File f = new File(Environment.getExternalStorageDirectory(), "Pedometer.csv");
             if (f.exists()) {
-                new AlertDialog.Builder(getActivity()).setMessage(R.string.file_already_exists)
+              /*  new AlertDialog.Builder(getActivity()).setMessage(R.string.file_already_exists)
                         .setPositiveButton(android.R.string.ok, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -272,19 +272,19 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                }).create().show();
+                }).create().show();*/
             } else {
                 writeToFile(f);
             }
         } else {
-            new AlertDialog.Builder(getActivity())
+           /* new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.error_external_storage_not_available)
                     .setPositiveButton(android.R.string.ok, new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    }).create().show();
+                    }).create().show();*/
         }
     }
 
@@ -297,14 +297,14 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File f = new File(Environment.getExternalStorageDirectory(), "Pedometer.csv");
             if (!f.exists() || !f.canRead()) {
-                new AlertDialog.Builder(getActivity())
+               /* new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.file_cant_read, f.getAbsolutePath()))
                         .setPositiveButton(android.R.string.ok, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
-                        }).create().show();
+                        }).create().show();*/
                 return;
             }
             Database db = Database.getInstance(getActivity());
@@ -329,20 +329,20 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
                 }
                 in.close();
             } catch (IOException e) {
-                new AlertDialog.Builder(getActivity())
+               /* new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.error_file, e.getMessage()))
                         .setPositiveButton(android.R.string.ok, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
-                        }).create().show();
+                        }).create().show();*/
                 e.printStackTrace();
                 return;
             } finally {
                 db.close();
             }
-            String message = getString(R.string.entries_imported, inserted + overwritten);
+           /* String message = getString(R.string.entries_imported, inserted + overwritten);
             if (overwritten > 0)
                 message += "\n\n" + getString(R.string.entries_overwritten, overwritten);
             if (ignored > 0) message += "\n\n" + getString(R.string.entries_ignored, ignored);
@@ -352,16 +352,16 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    }).create().show();
+                    }).create().show();*/
         } else {
-            new AlertDialog.Builder(getActivity())
+          /*  new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.error_external_storage_not_available)
                     .setPositiveButton(android.R.string.ok, new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    }).create().show();
+                    }).create().show();*/
         }
     }
 
@@ -371,7 +371,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
             f.createNewFile();
             out = new BufferedWriter(new FileWriter(f));
         } catch (IOException e) {
-            new AlertDialog.Builder(getActivity())
+           /* new AlertDialog.Builder(getActivity())
                     .setMessage(getString(R.string.error_file, e.getMessage()))
                     .setPositiveButton(android.R.string.ok, new OnClickListener() {
                         @Override
@@ -379,7 +379,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
                             dialog.dismiss();
                         }
                     }).create().show();
-            e.printStackTrace();
+            e.printStackTrace();*/
             return;
         }
         Database db = Database.getInstance(getActivity());
@@ -396,7 +396,7 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
             out.flush();
             out.close();
         } catch (IOException e) {
-            new AlertDialog.Builder(getActivity())
+            /*new AlertDialog.Builder(getActivity())
                     .setMessage(getString(R.string.error_file, e.getMessage()))
                     .setPositiveButton(android.R.string.ok, new OnClickListener() {
                         @Override
@@ -404,19 +404,19 @@ public class Fragment_Settings extends PreferenceFragment implements OnPreferenc
                             dialog.dismiss();
                         }
                     }).create().show();
-            e.printStackTrace();
+            e.printStackTrace();*/
             return;
         } finally {
             if (c != null) c.close();
             db.close();
         }
-        new AlertDialog.Builder(getActivity())
+/*        new AlertDialog.Builder(getActivity())
                 .setMessage(getString(R.string.data_saved, f.getAbsolutePath()))
                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                }).create().show();
+                }).create().show();*/
     }
 }

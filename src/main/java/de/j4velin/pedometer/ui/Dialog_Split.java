@@ -20,18 +20,17 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import de.j4velin.pedometer.R;
+//import de.j4velin.pedometer.R;
 
 abstract class Dialog_Split {
 
     private static boolean split_active;
 
     public static Dialog getDialog(final Context c, final int totalSteps) {
-        final Dialog d = new Dialog(c);
+       /* final Dialog d = new Dialog(c);
         d.setTitle(R.string.split_count);
         d.setContentView(R.layout.dialog_split);
 
@@ -63,33 +62,26 @@ abstract class Dialog_Split {
         started.setVisibility(split_active ? View.VISIBLE : View.GONE);
         stopped.setVisibility(split_active ? View.GONE : View.VISIBLE);
 
-        final Button startstop = (Button) d.findViewById(R.id.start);
+        final Button startstop = d.findViewById(R.id.start);
         startstop.setText(split_active ? R.string.stop : R.string.start);
-        startstop.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (!split_active) {
-                    prefs.edit().putLong("split_date", System.currentTimeMillis())
-                            .putInt("split_steps", totalSteps).apply();
-                    split_active = true;
-                    d.dismiss();
-                } else {
-                    started.setVisibility(View.GONE);
-                    stopped.setVisibility(View.VISIBLE);
-                    prefs.edit().remove("split_date").remove("split_steps").apply();
-                    split_active = false;
-                }
-                startstop.setText(split_active ? R.string.stop : R.string.start);
-            }
-        });
-
-        d.findViewById(R.id.close).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(final View v) {
+        startstop.setOnClickListener(v -> {
+            if (!split_active) {
+                prefs.edit().putLong("split_date", System.currentTimeMillis())
+                        .putInt("split_steps", totalSteps).apply();
+                split_active = true;
                 d.dismiss();
+            } else {
+                started.setVisibility(View.GONE);
+                stopped.setVisibility(View.VISIBLE);
+                prefs.edit().remove("split_date").remove("split_steps").apply();
+                split_active = false;
             }
+            startstop.setText(split_active ? R.string.stop : R.string.start);
         });
 
-        return d;
+        d.findViewById(R.id.close).setOnClickListener(v -> d.dismiss());
+
+        return d;*/
+        return null;
     }
 }

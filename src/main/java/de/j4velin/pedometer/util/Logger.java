@@ -24,7 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-import de.j4velin.pedometer.BuildConfig;
+//import de.j4velin.pedometer.BuildConfig;
 
 public abstract class Logger {
 
@@ -40,7 +40,7 @@ public abstract class Logger {
     }
 
     public static void log(final Cursor c) {
-        if (!BuildConfig.DEBUG) return;
+//        if (!BuildConfig.DEBUG) return;
         c.moveToFirst();
         String title = "";
         for (int i = 0; i < c.getColumnCount(); i++)
@@ -57,7 +57,7 @@ public abstract class Logger {
 
     @SuppressWarnings("deprecation")
     public static void log(String msg) {
-        if (!BuildConfig.DEBUG) return;
+//        if (!BuildConfig.DEBUG) return;
         android.util.Log.d(APP, msg);
         try {
             if (fw == null) {

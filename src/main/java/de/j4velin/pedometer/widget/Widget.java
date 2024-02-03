@@ -17,7 +17,7 @@
 package de.j4velin.pedometer.widget;
 
 import de.j4velin.pedometer.ui.Activity_Main;
-import de.j4velin.pedometer.R;
+//import de.j4velin.pedometer.R;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -38,16 +38,16 @@ public class Widget extends AppWidgetProvider {
 		final SharedPreferences prefs = context.getSharedPreferences("Widgets",
 				Context.MODE_PRIVATE);
 		final PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId,
-				new Intent(context, Activity_Main.class), 0);
-
-		final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+				new Intent(context, Activity_Main.class), PendingIntent.FLAG_MUTABLE);
+		return null;
+		/*final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
 		views.setOnClickPendingIntent(R.id.widget, pendingIntent);
 		views.setTextColor(R.id.widgetsteps, prefs.getInt("color_" + appWidgetId, Color.WHITE));
 		views.setTextViewText(R.id.widgetsteps, String.valueOf(steps));
 		views.setTextColor(R.id.widgettext, prefs.getInt("color_" + appWidgetId, Color.WHITE));
 		views.setInt(R.id.widget, "setBackgroundColor",
 				prefs.getInt("background_" + appWidgetId, Color.TRANSPARENT));
-		return views;
+		return views;*/
 	}
 
 }

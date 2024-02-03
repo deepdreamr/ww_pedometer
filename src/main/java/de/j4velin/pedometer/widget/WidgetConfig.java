@@ -27,7 +27,7 @@ import android.view.View.OnClickListener;
 
 import de.j4velin.lib.colorpicker.ColorPickerDialog;
 import de.j4velin.lib.colorpicker.ColorPreviewButton;
-import de.j4velin.pedometer.R;
+//import de.j4velin.pedometer.R;
 
 public class WidgetConfig extends Activity implements OnClickListener {
 
@@ -45,14 +45,16 @@ public class WidgetConfig extends Activity implements OnClickListener {
         final Intent intent = getIntent();
         final Bundle extras = intent.getExtras();
         if (extras != null) {
-            setContentView(R.layout.widgetconfig);
+            //setContentView(R.layout.widgetconfig);
 
+/*
             ColorPreviewButton textcolor = (ColorPreviewButton) findViewById(R.id.textcolor);
             textcolor.setOnClickListener(this);
             textcolor.setColor(Color.WHITE);
             ColorPreviewButton bgcolor = (ColorPreviewButton) findViewById(R.id.bgcolor);
             bgcolor.setOnClickListener(this);
             bgcolor.setColor(Color.TRANSPARENT);
+*/
 
             widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -75,11 +77,11 @@ public class WidgetConfig extends Activity implements OnClickListener {
         dialog.setOnColorChangedListener(new ColorPickerDialog.OnColorChangedListener() {
             @Override
             public void onColorChanged(int color) {
-                ((ColorPreviewButton) v).setColor(color);
+              /*  ((ColorPreviewButton) v).setColor(color);
                 v.setTag(color);
                 getSharedPreferences("Widgets", Context.MODE_PRIVATE).edit()
                         .putInt((v.getId() == R.id.bgcolor ? "background_" : "color_") + widgetId,
-                                color).apply();
+                                color).apply();*/
             }
         });
         dialog.show();

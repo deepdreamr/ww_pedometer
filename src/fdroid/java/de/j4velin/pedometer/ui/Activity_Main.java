@@ -26,14 +26,16 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.PermissionChecker;
+//import android.support.v4.content.PermissionChecker;
 import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import de.j4velin.pedometer.BuildConfig;
-import de.j4velin.pedometer.R;
+
+import androidx.fragment.app.FragmentActivity;
+
+//import de.j4velin.pedometer.BuildConfig;
+//import de.j4velin.pedometer.R;
 import de.j4velin.pedometer.SensorListener;
 
 public class Activity_Main extends FragmentActivity {
@@ -56,11 +58,11 @@ public class Activity_Main extends FragmentActivity {
             transaction.commit();
         }
 
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 23 && PermissionChecker
+       /* if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 23 && PermissionChecker
                 .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PermissionChecker.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        }
+        }*/
     }
 
     @Override
@@ -72,7 +74,7 @@ public class Activity_Main extends FragmentActivity {
         }
     }
 
-    public boolean optionsItemSelected(final MenuItem item) {
+    /*public boolean optionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 getFragmentManager().popBackStackImmediate();
@@ -129,5 +131,5 @@ public class Activity_Main extends FragmentActivity {
                 break;
         }
         return true;
-    }
+    }*/
 }
