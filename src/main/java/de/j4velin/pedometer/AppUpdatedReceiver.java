@@ -26,13 +26,40 @@ import de.j4velin.pedometer.util.Logger;
 
 public class AppUpdatedReceiver extends BroadcastReceiver {
 
-    @Override
+    /*
     public void onReceive(final Context context, final Intent intent) {
         if (BuildConfig.DEBUG) Logger.log("app updated");
         if (Build.VERSION.SDK_INT >= 26) {
             API26Wrapper.startForegroundService(context, new Intent(context, SensorListener.class));
         } else {
             context.startService(new Intent(context, SensorListener.class));
+        }
+    }
+     */
+    @Override
+    public void onReceive(final Context context, final Intent intent) {
+        if (BuildConfig.DEBUG) Logger.log("app updated");
+
+        Logger.init(context.getApplicationContext());
+
+        if (!context.getSharedPreferences("pedometer", Context.MODE_PRIVATE)
+                .getBoolean("notification", true)) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (context.checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+
+        Intent serviceIntent = new Intent(context, SensorListener.class);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            API26Wrapper.startForegroundService(context, serviceIntent);
+        } else {
+            context.startService(serviceIntent);
         }
     }
 

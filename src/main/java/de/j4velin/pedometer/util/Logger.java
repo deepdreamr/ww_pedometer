@@ -16,6 +16,7 @@
 
 package de.j4velin.pedometer.util;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
 
@@ -31,6 +32,9 @@ public abstract class Logger {
     private static FileWriter fw;
     private static final Date date = new Date();
     private final static String APP = "Pedometer";
+
+    // new
+    private static Context appContext;
 
     public static void log(Throwable ex) {
         log(ex.getMessage());
@@ -55,15 +59,28 @@ public abstract class Logger {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    //new
+    public static void init(Context context) {
+        if (context != null) {
+            appContext = context.getApplicationContext();
+        }
+    }
+
     public static void log(String msg) {
         if (!BuildConfig.DEBUG) return;
         android.util.Log.d(APP, msg);
         try {
             if (fw == null) {
-                fw = new FileWriter(new File(
-                        Environment.getExternalStorageDirectory().toString() + "/" + APP + ".txt"),
-                        true);
+
+              //  fw = new FileWriter(new File(
+              //          Environment.getExternalStorageDirectory().toString() + "/" + APP + ".txt"),
+              //          true);
+                //new
+                File dir = appContext != null ? appContext.getExternalFilesDir(null) : null;
+                if (dir == null) return;
+
+                fw = new FileWriter(new File(dir, APP + ".txt"), true);
+
             }
             date.setTime(System.currentTimeMillis());
             fw.write(date.toLocaleString() + " - " + msg + "\n");

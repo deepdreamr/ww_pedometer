@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -178,6 +179,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         since_boot = db.getCurrentSteps();
         int pauseDifference = since_boot - prefs.getInt("pauseCount", since_boot);
 
+        /*
         if(SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()).length() == 0)
         {
             //Log.e("LOGGED IN:","FALSE");
@@ -192,19 +194,46 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         }
 
 
+         */
+
+        if (loginLayout != null && logoutLayout != null) {
+
+            if (SaveSharedPreference.getUserName(
+                    getActivity().getApplication().getApplicationContext()).length() == 0) {
+
+                changeLayouts(logoutLayout, loginLayout);
+
+            } else {
+
+                changeLayouts(loginLayout, logoutLayout);
+
+                if (welcomeText != null) {
+                    welcomeText.setText(getString(R.string.signed_in_as) +
+                            SaveSharedPreference.getUserName(
+                                    getActivity().getApplication().getApplicationContext()));
+                }
+            }
+        }
+
         connectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("CONNECT", "Connect button clicked");
                 gc.loginUser(inputUserName.getText().toString(), inputPassword.getText().toString(), new GameConnectorCallback() {
                     @Override
                     public void onResponseCallback(String response) {
+                        Log.d("CONNECT", "Server response: " + response);
+                       // Toast.makeText(getActivity(), "CALLBACK OK", Toast.LENGTH_LONG).show();
                         if (response.equals("true")) {
                             Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.successful_connection, Toast.LENGTH_SHORT).show();
                             SaveSharedPreference.setUserName(getActivity().getApplication().getApplicationContext(),inputUserName.getText().toString());
                             SaveSharedPreference.setUserPass(getActivity().getApplication().getApplicationContext(),inputPassword.getText().toString());
 
                             changeLayouts(loginLayout, logoutLayout);
-                            welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+                           // welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+                            welcomeText.setText(getString(R.string.signed_in_as) + " " +
+                                    SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+
                         } else {
                             Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.error_connection, Toast.LENGTH_SHORT).show();
                         }
@@ -227,6 +256,7 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
 
 
 
+        /*
          //register a sensorlistener to live update the UI if a step is taken
         SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
@@ -247,6 +277,47 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         } else {
             sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
         }
+
+
+         */
+
+        // register a sensorlistener to live update the UI if a step is taken
+        SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+
+// 1) Android 10+ esetén előbb kérj ACTIVITY_RECOGNITION-t, különben sokszor úgy tűnik "nincs szenzor"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
+                    getActivity(), android.Manifest.permission.ACTIVITY_RECOGNITION
+            ) != PackageManager.PERMISSION_GRANTED) {
+
+                // Ne "no sensor"-t dobj, hanem engedélykérést
+                requestPermissions(
+                        new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION},
+                        1001
+                );
+                return; // majd a permission után folytasd
+            }
+        }
+
+// 2) Próbáld először STEP_COUNTER-t, ha az nincs, ess vissza STEP_DETECTOR-ra
+        Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if (sensor == null) {
+            sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        }
+
+        if (sensor == null) {
+            // Csak akkor írd ki, ha tényleg nincs egyik sem
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.no_sensor)
+                    .setMessage(R.string.no_sensor_explain)
+                    .setOnDismissListener(dialogInterface -> getActivity().finish())
+                    .setNeutralButton(android.R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+                    .create()
+                    .show();
+        } else {
+            sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
+        }
+
 
         since_boot -= pauseDifference;
 
@@ -476,12 +547,23 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         }
     }
 
+    /*
     private void changeLayouts(RelativeLayout _lay1, RelativeLayout _lay2){
         _lay1.setVisibility(View.GONE);
         _lay1.invalidate();
 
         _lay2.setVisibility(View.VISIBLE);
         //_lay2.invalidate();
+    }
+
+
+     */
+
+    private void changeLayouts(RelativeLayout hide, RelativeLayout show){
+        if (hide == null || show == null) return;
+
+        hide.setVisibility(View.GONE);
+        show.setVisibility(View.VISIBLE);
     }
 
 }

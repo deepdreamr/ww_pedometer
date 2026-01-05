@@ -115,6 +115,7 @@ public class SensorListener extends Service implements SensorEventListener {
         }
     }
 
+   /*
     private void showNotification() {
         if (Build.VERSION.SDK_INT >= 26) {
             startForeground(NOTIFICATION_ID, getNotification(this));
@@ -124,6 +125,35 @@ public class SensorListener extends Service implements SensorEventListener {
                     .notify(NOTIFICATION_ID, getNotification(this));
         }
     }
+*/
+   private void showNotification() {
+
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+           if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+                   != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+               // Nincs engedély -> ne indíts Foreground Service-t, mert SecurityException lesz
+               // (Majd akkor indul, ha az Activity-ben a user megadja az engedélyt.)
+               return;
+           }
+       }
+
+       if (Build.VERSION.SDK_INT >= 26) {
+           Notification n = getNotification(this);
+
+           if (Build.VERSION.SDK_INT >= 34) {
+               startForeground(NOTIFICATION_ID, n,
+                       android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+           } else {
+               startForeground(NOTIFICATION_ID, n);
+           }
+
+       } else if (getSharedPreferences("pedometer", Context.MODE_PRIVATE)
+               .getBoolean("notification", true)) {
+           ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
+                   .notify(NOTIFICATION_ID, getNotification(this));
+       }
+   }
+
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -144,9 +174,19 @@ public class SensorListener extends Service implements SensorEventListener {
         if (BuildConfig.DEBUG) Logger.log("next update: " + new Date(nextUpdate).toLocaleString());
         AlarmManager am =
                 (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pi = PendingIntent
-                .getService(getApplicationContext(), 2, new Intent(this, SensorListener.class),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //PendingIntent pi = PendingIntent
+        //        .getService(getApplicationContext(), 2, new Intent(this, SensorListener.class),
+        //                PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent i = new Intent(this, SensorListener.class);
+
+        int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            piFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        PendingIntent pi = PendingIntent.getService(getApplicationContext(), 2, i, piFlags);
+
         if (Build.VERSION.SDK_INT >= 23) {
             API23Wrapper.setAlarmWhileIdle(am, AlarmManager.RTC, nextUpdate, pi);
         } else {
@@ -164,12 +204,41 @@ public class SensorListener extends Service implements SensorEventListener {
 
     @Override
     public void onTaskRemoved(final Intent rootIntent) {
+       /*
         super.onTaskRemoved(rootIntent);
         if (BuildConfig.DEBUG) Logger.log("sensor service task removed");
         // Restart service in 500 ms
         ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
                 .set(AlarmManager.RTC, System.currentTimeMillis() + 500, PendingIntent
                         .getService(this, 3, new Intent(this, SensorListener.class), PendingIntent.FLAG_MUTABLE));
+   */
+        super.onTaskRemoved(rootIntent);
+
+        if (BuildConfig.DEBUG) Logger.log("sensor service task removed");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(this, SensorListener.class);
+
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        PendingIntent pi = PendingIntent.getService(this, 3, intent, flags);
+
+        am.set(
+                AlarmManager.RTC,
+                System.currentTimeMillis() + 500,
+                pi
+        );
+
     }
 
     @Override
@@ -185,6 +254,7 @@ public class SensorListener extends Service implements SensorEventListener {
         }
     }
 
+    /*
     public static Notification getNotification(final Context context) {
         if (BuildConfig.DEBUG) Logger.log("getNotification");
         SharedPreferences prefs = context.getSharedPreferences("pedometer", Context.MODE_PRIVATE);
@@ -216,6 +286,64 @@ public class SensorListener extends Service implements SensorEventListener {
                 PendingIntent.getActivity(context, 0, new Intent(context, Activity_Main.class),
                         PendingIntent.FLAG_UPDATE_CURRENT)).setSmallIcon(R.drawable.ic_notification)
                 .setOngoing(true);
+        return notificationBuilder.build();
+    }
+
+*/
+    public static Notification getNotification(final Context context) {
+        if (BuildConfig.DEBUG) Logger.log("getNotification");
+
+        SharedPreferences prefs = context.getSharedPreferences("pedometer", Context.MODE_PRIVATE);
+        int goal = prefs.getInt("goal", 10000);
+
+        Database db = Database.getInstance(context);
+        int today_offset = db.getSteps(Util.getToday());
+        if (steps == 0) {
+            steps = db.getCurrentSteps();
+        }
+        db.close();
+
+        Notification.Builder notificationBuilder =
+                Build.VERSION.SDK_INT >= 26
+                        ? API26Wrapper.getNotificationBuilder(context)
+                        : new Notification.Builder(context);
+
+        if (steps > 0) {
+            if (today_offset == Integer.MIN_VALUE) today_offset = -steps;
+
+            notificationBuilder
+                    .setProgress(goal, today_offset + steps, false)
+                    .setContentText(
+                            today_offset + steps >= goal
+                                    ? context.getString(
+                                    R.string.goal_reached_notification,
+                                    NumberFormat.getInstance(Locale.getDefault())
+                                            .format(today_offset + steps))
+                                    : context.getString(
+                                    R.string.notification_text,
+                                    NumberFormat.getInstance(Locale.getDefault())
+                                            .format(goal - today_offset - steps)));
+        } else {
+            notificationBuilder.setContentText(
+                    context.getString(R.string.your_progress_will_be_shown_here_soon));
+        }
+
+        Intent intent = new Intent(context, Activity_Main.class);
+        int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            piFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(context, 0, intent, piFlags);
+
+        notificationBuilder
+                .setPriority(Notification.PRIORITY_MIN)
+                .setShowWhen(false)
+                .setContentTitle(context.getString(R.string.notification_title))
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setOngoing(true);
+
         return notificationBuilder.build();
     }
 

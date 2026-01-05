@@ -27,7 +27,8 @@ import de.j4velin.pedometer.util.Logger;
 
 public class BootReceiver extends BroadcastReceiver {
 
-    @Override
+
+    /*
     public void onReceive(final Context context, final Intent intent) {
         if (BuildConfig.DEBUG) Logger.log("booted");
 
@@ -55,4 +56,47 @@ public class BootReceiver extends BroadcastReceiver {
             context.startService(new Intent(context, SensorListener.class));
         }
     }
+     */
+    @Override
+    public void onReceive(final Context context, final Intent intent) {
+        if (BuildConfig.DEBUG) Logger.log("booted");
+
+        Logger.init(context.getApplicationContext());
+
+        SharedPreferences prefs = context.getSharedPreferences("pedometer", Context.MODE_PRIVATE);
+
+        Database db = Database.getInstance(context);
+
+        if (!prefs.getBoolean("correctShutdown", false)) {
+            if (BuildConfig.DEBUG) Logger.log("Incorrect shutdown");
+            int steps = Math.max(0, db.getCurrentSteps());
+            if (BuildConfig.DEBUG) Logger.log("Trying to recover " + steps + " steps");
+            db.addToLastEntry(steps);
+        }
+
+        db.removeNegativeEntries();
+        db.saveCurrentSteps(0);
+        db.close();
+        prefs.edit().remove("correctShutdown").apply();
+
+        if (!prefs.getBoolean("notification", true)) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (context.checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+
+        Intent serviceIntent = new Intent(context, SensorListener.class);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            API26Wrapper.startForegroundService(context, serviceIntent);
+        } else {
+            context.startService(serviceIntent);
+        }
+    }
+
 }
