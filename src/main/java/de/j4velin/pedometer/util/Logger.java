@@ -71,11 +71,6 @@ public abstract class Logger {
         android.util.Log.d(APP, msg);
         try {
             if (fw == null) {
-
-              //  fw = new FileWriter(new File(
-              //          Environment.getExternalStorageDirectory().toString() + "/" + APP + ".txt"),
-              //          true);
-                //new
                 File dir = appContext != null ? appContext.getExternalFilesDir(null) : null;
                 if (dir == null) return;
 
@@ -88,7 +83,6 @@ public abstract class Logger {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // }
     }
 
     protected void finalize() throws Throwable {

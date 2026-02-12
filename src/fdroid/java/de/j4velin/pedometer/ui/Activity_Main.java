@@ -41,34 +41,6 @@ import de.j4velin.pedometer.util.Logger;
 public class Activity_Main extends FragmentActivity {
 
     @Override
-
-    /*
-    protected void onCreate(final Bundle b) {
-        super.onCreate(b);
-        //new
-        Logger.init(getApplicationContext());
-        startService(new Intent(this, SensorListener.class));
-        if (b == null) {
-            // Create new fragment and transaction
-            Fragment newFragment = new Fragment_Overview();
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-            // Replace whatever is in the fragment_container view with this
-            // fragment,
-            // and add the transaction to the back stack
-            transaction.replace(android.R.id.content, newFragment);
-
-            // Commit the transaction
-            transaction.commit();
-        }
-
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 23 && PermissionChecker
-                .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                PermissionChecker.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        }
-    }
-     */
     protected void onCreate(final Bundle b) {
         super.onCreate(b);
 

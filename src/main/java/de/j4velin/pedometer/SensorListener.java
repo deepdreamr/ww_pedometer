@@ -66,8 +66,6 @@ public class SensorListener extends Service implements SensorEventListener {
 
     @Override
     public void onAccuracyChanged(final Sensor sensor, int accuracy) {
-        // nobody knows what happens here: step value might magically decrease
-        // when this method is called...
         if (BuildConfig.DEBUG) Logger.log(sensor.getName() + " accuracy changed: " + accuracy);
     }
 
@@ -115,24 +113,11 @@ public class SensorListener extends Service implements SensorEventListener {
         }
     }
 
-   /*
-    private void showNotification() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            startForeground(NOTIFICATION_ID, getNotification(this));
-        } else if (getSharedPreferences("pedometer", Context.MODE_PRIVATE)
-                .getBoolean("notification", true)) {
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-                    .notify(NOTIFICATION_ID, getNotification(this));
-        }
-    }
-*/
    private void showNotification() {
 
        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
            if (checkSelfPermission(android.Manifest.permission.ACTIVITY_RECOGNITION)
                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-               // Nincs engedély -> ne indíts Foreground Service-t, mert SecurityException lesz
-               // (Majd akkor indul, ha az Activity-ben a user megadja az engedélyt.)
                return;
            }
        }
@@ -175,10 +160,7 @@ public class SensorListener extends Service implements SensorEventListener {
         AlarmManager am =
                 (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
 
-        //PendingIntent pi = PendingIntent
-        //        .getService(getApplicationContext(), 2, new Intent(this, SensorListener.class),
-        //                PendingIntent.FLAG_UPDATE_CURRENT);
-        Intent i = new Intent(this, SensorListener.class);
+          Intent i = new Intent(this, SensorListener.class);
 
         int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -204,14 +186,7 @@ public class SensorListener extends Service implements SensorEventListener {
 
     @Override
     public void onTaskRemoved(final Intent rootIntent) {
-       /*
-        super.onTaskRemoved(rootIntent);
-        if (BuildConfig.DEBUG) Logger.log("sensor service task removed");
-        // Restart service in 500 ms
-        ((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-                .set(AlarmManager.RTC, System.currentTimeMillis() + 500, PendingIntent
-                        .getService(this, 3, new Intent(this, SensorListener.class), PendingIntent.FLAG_MUTABLE));
-   */
+
         super.onTaskRemoved(rootIntent);
 
         if (BuildConfig.DEBUG) Logger.log("sensor service task removed");
@@ -253,43 +228,6 @@ public class SensorListener extends Service implements SensorEventListener {
             e.printStackTrace();
         }
     }
-
-    /*
-    public static Notification getNotification(final Context context) {
-        if (BuildConfig.DEBUG) Logger.log("getNotification");
-        SharedPreferences prefs = context.getSharedPreferences("pedometer", Context.MODE_PRIVATE);
-        int goal = prefs.getInt("goal", 10000);
-        Database db = Database.getInstance(context);
-        int today_offset = db.getSteps(Util.getToday());
-        if (steps == 0)
-            steps = db.getCurrentSteps(); // use saved value if we haven't anything better
-        db.close();
-        Notification.Builder notificationBuilder =
-                Build.VERSION.SDK_INT >= 26 ? API26Wrapper.getNotificationBuilder(context) :
-                        new Notification.Builder(context);
-        if (steps > 0) {
-            if (today_offset == Integer.MIN_VALUE) today_offset = -steps;
-            notificationBuilder.setProgress(goal, today_offset + steps, false).setContentText(
-                    today_offset + steps >= goal ?
-                            context.getString(R.string.goal_reached_notification,
-                                    NumberFormat.getInstance(Locale.getDefault())
-                                            .format((today_offset + steps))) :
-                            context.getString(R.string.notification_text,
-                                    NumberFormat.getInstance(Locale.getDefault())
-                                            .format((goal - today_offset - steps))));
-        } else { // still no step value?
-            notificationBuilder.setContentText(
-                    context.getString(R.string.your_progress_will_be_shown_here_soon));
-        }
-        notificationBuilder.setPriority(Notification.PRIORITY_MIN).setShowWhen(false)
-                .setContentTitle(context.getString(R.string.notification_title)).setContentIntent(
-                PendingIntent.getActivity(context, 0, new Intent(context, Activity_Main.class),
-                        PendingIntent.FLAG_UPDATE_CURRENT)).setSmallIcon(R.drawable.ic_notification)
-                .setOngoing(true);
-        return notificationBuilder.build();
-    }
-
-*/
     public static Notification getNotification(final Context context) {
         if (BuildConfig.DEBUG) Logger.log("getNotification");
 

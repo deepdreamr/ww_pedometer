@@ -179,22 +179,6 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         since_boot = db.getCurrentSteps();
         int pauseDifference = since_boot - prefs.getInt("pauseCount", since_boot);
 
-        /*
-        if(SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()).length() == 0)
-        {
-            //Log.e("LOGGED IN:","FALSE");
-            changeLayouts(logoutLayout, loginLayout);
-        }
-        else
-        {
-            // Stay at the current activity.
-            //Log.e("LOGGED IN:","TRUE");
-            changeLayouts(loginLayout, logoutLayout);
-            welcomeText.setText(getString(R.string.signed_in_as) + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
-        }
-
-
-         */
 
         if (loginLayout != null && logoutLayout != null) {
 
@@ -223,14 +207,12 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
                     @Override
                     public void onResponseCallback(String response) {
                         Log.d("CONNECT", "Server response: " + response);
-                       // Toast.makeText(getActivity(), "CALLBACK OK", Toast.LENGTH_LONG).show();
                         if (response.equals("true")) {
                             Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.successful_connection, Toast.LENGTH_SHORT).show();
                             SaveSharedPreference.setUserName(getActivity().getApplication().getApplicationContext(),inputUserName.getText().toString());
                             SaveSharedPreference.setUserPass(getActivity().getApplication().getApplicationContext(),inputPassword.getText().toString());
 
                             changeLayouts(loginLayout, logoutLayout);
-                           // welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
                             welcomeText.setText(getString(R.string.signed_in_as) + " " +
                                     SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
 
@@ -252,61 +234,27 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             }
         });
 
-
-
-
-
-        /*
-         //register a sensorlistener to live update the UI if a step is taken
-        SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if (sensor == null) {
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.no_sensor)
-                    .setMessage(R.string.no_sensor_explain)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(final DialogInterface dialogInterface) {
-                            getActivity().finish();
-                        }
-                    }).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(final DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).create().show();
-        } else {
-            sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
-        }
-
-
-         */
-
         // register a sensorlistener to live update the UI if a step is taken
         SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
 
-// 1) Android 10+ esetén előbb kérj ACTIVITY_RECOGNITION-t, különben sokszor úgy tűnik "nincs szenzor"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (androidx.core.content.ContextCompat.checkSelfPermission(
                     getActivity(), android.Manifest.permission.ACTIVITY_RECOGNITION
             ) != PackageManager.PERMISSION_GRANTED) {
 
-                // Ne "no sensor"-t dobj, hanem engedélykérést
                 requestPermissions(
                         new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION},
                         1001
                 );
-                return; // majd a permission után folytasd
+                return;
             }
         }
-
-// 2) Próbáld először STEP_COUNTER-t, ha az nincs, ess vissza STEP_DETECTOR-ra
         Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         if (sensor == null) {
             sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         }
 
         if (sensor == null) {
-            // Csak akkor írd ki, ha tényleg nincs egyik sem
             new AlertDialog.Builder(getActivity())
                     .setTitle(R.string.no_sensor)
                     .setMessage(R.string.no_sensor_explain)
@@ -433,7 +381,6 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         gc.updateSteps(steps_today - stepsTaken, new GameConnectorCallback() {
             @Override
             public void onResponseCallback(String response) {
-                //Log.e("CURRENT STEPS: ", String.valueOf(db.getCurrentSteps()));
                 Log.e("ON DESTROY CALLBACK : ",response);
             }
         });
@@ -546,19 +493,6 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             barChart.setVisibility(View.GONE);
         }
     }
-
-    /*
-    private void changeLayouts(RelativeLayout _lay1, RelativeLayout _lay2){
-        _lay1.setVisibility(View.GONE);
-        _lay1.invalidate();
-
-        _lay2.setVisibility(View.VISIBLE);
-        //_lay2.invalidate();
-    }
-
-
-     */
-
     private void changeLayouts(RelativeLayout hide, RelativeLayout show){
         if (hide == null || show == null) return;
 
