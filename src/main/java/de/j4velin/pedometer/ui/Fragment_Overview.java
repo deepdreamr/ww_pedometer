@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -178,33 +179,43 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         since_boot = db.getCurrentSteps();
         int pauseDifference = since_boot - prefs.getInt("pauseCount", since_boot);
 
-        if(SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()).length() == 0)
-        {
-            //Log.e("LOGGED IN:","FALSE");
-            changeLayouts(logoutLayout, loginLayout);
-        }
-        else
-        {
-            // Stay at the current activity.
-            //Log.e("LOGGED IN:","TRUE");
-            changeLayouts(loginLayout, logoutLayout);
-            welcomeText.setText(getString(R.string.signed_in_as) + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
-        }
 
+        if (loginLayout != null && logoutLayout != null) {
+
+            if (SaveSharedPreference.getUserName(
+                    getActivity().getApplication().getApplicationContext()).length() == 0) {
+
+                changeLayouts(logoutLayout, loginLayout);
+
+            } else {
+
+                changeLayouts(loginLayout, logoutLayout);
+
+                if (welcomeText != null) {
+                    welcomeText.setText(getString(R.string.signed_in_as) +
+                            SaveSharedPreference.getUserName(
+                                    getActivity().getApplication().getApplicationContext()));
+                }
+            }
+        }
 
         connectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("CONNECT", "Connect button clicked");
                 gc.loginUser(inputUserName.getText().toString(), inputPassword.getText().toString(), new GameConnectorCallback() {
                     @Override
                     public void onResponseCallback(String response) {
+                        Log.d("CONNECT", "Server response: " + response);
                         if (response.equals("true")) {
                             Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.successful_connection, Toast.LENGTH_SHORT).show();
                             SaveSharedPreference.setUserName(getActivity().getApplication().getApplicationContext(),inputUserName.getText().toString());
                             SaveSharedPreference.setUserPass(getActivity().getApplication().getApplicationContext(),inputPassword.getText().toString());
 
                             changeLayouts(loginLayout, logoutLayout);
-                            welcomeText.setText(R.string.signed_in_as + SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+                            welcomeText.setText(getString(R.string.signed_in_as) + " " +
+                                    SaveSharedPreference.getUserName(getActivity().getApplication().getApplicationContext()));
+
                         } else {
                             Toast.makeText(getActivity().getApplication().getApplicationContext(), R.string.error_connection, Toast.LENGTH_SHORT).show();
                         }
@@ -223,30 +234,38 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             }
         });
 
-
-
-
-
-         //register a sensorlistener to live update the UI if a step is taken
+        // register a sensorlistener to live update the UI if a step is taken
         SensorManager sm = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
+                    getActivity(), android.Manifest.permission.ACTIVITY_RECOGNITION
+            ) != PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(
+                        new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION},
+                        1001
+                );
+                return;
+            }
+        }
         Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         if (sensor == null) {
-            new AlertDialog.Builder(getActivity()).setTitle(R.string.no_sensor)
+            sensor = sm.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        }
+
+        if (sensor == null) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.no_sensor)
                     .setMessage(R.string.no_sensor_explain)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(final DialogInterface dialogInterface) {
-                            getActivity().finish();
-                        }
-                    }).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(final DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).create().show();
+                    .setOnDismissListener(dialogInterface -> getActivity().finish())
+                    .setNeutralButton(android.R.string.ok, (dialogInterface, i) -> dialogInterface.dismiss())
+                    .create()
+                    .show();
         } else {
             sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI, 0);
         }
+
 
         since_boot -= pauseDifference;
 
@@ -362,7 +381,6 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
         gc.updateSteps(steps_today - stepsTaken, new GameConnectorCallback() {
             @Override
             public void onResponseCallback(String response) {
-                //Log.e("CURRENT STEPS: ", String.valueOf(db.getCurrentSteps()));
                 Log.e("ON DESTROY CALLBACK : ",response);
             }
         });
@@ -475,13 +493,11 @@ public class Fragment_Overview extends Fragment implements SensorEventListener {
             barChart.setVisibility(View.GONE);
         }
     }
+    private void changeLayouts(RelativeLayout hide, RelativeLayout show){
+        if (hide == null || show == null) return;
 
-    private void changeLayouts(RelativeLayout _lay1, RelativeLayout _lay2){
-        _lay1.setVisibility(View.GONE);
-        _lay1.invalidate();
-
-        _lay2.setVisibility(View.VISIBLE);
-        //_lay2.invalidate();
+        hide.setVisibility(View.GONE);
+        show.setVisibility(View.VISIBLE);
     }
 
 }

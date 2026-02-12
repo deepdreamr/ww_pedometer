@@ -36,31 +36,32 @@ import androidx.fragment.app.FragmentActivity;
 import de.j4velin.pedometer.BuildConfig;
 import de.j4velin.pedometer.R;
 import de.j4velin.pedometer.SensorListener;
+import de.j4velin.pedometer.util.Logger;
 
 public class Activity_Main extends FragmentActivity {
 
     @Override
     protected void onCreate(final Bundle b) {
         super.onCreate(b);
-        startService(new Intent(this, SensorListener.class));
-        if (b == null) {
-            // Create new fragment and transaction
-            Fragment newFragment = new Fragment_Overview();
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
-            // Replace whatever is in the fragment_container view with this
-            // fragment,
-            // and add the transaction to the back stack
-            transaction.replace(android.R.id.content, newFragment);
+        Logger.init(getApplicationContext());
 
-            // Commit the transaction
-            transaction.commit();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
+                    == PermissionChecker.PERMISSION_GRANTED) {
+                startService(new Intent(this, SensorListener.class));
+            } else {
+                requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, 1001);
+            }
+        } else {
+            startService(new Intent(this, SensorListener.class));
         }
 
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 23 && PermissionChecker
-                .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                PermissionChecker.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        if (b == null) {
+            Fragment newFragment = new Fragment_Overview();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(android.R.id.content, newFragment);
+            transaction.commit();
         }
     }
 
@@ -129,4 +130,16 @@ public class Activity_Main extends FragmentActivity {
         }
         return true;
     }
+    //new
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1001) {
+            if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                startService(new Intent(this, SensorListener.class));
+            }
+        }
+    }
+
 }

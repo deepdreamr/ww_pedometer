@@ -75,17 +75,6 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
-    /**
-     * Query the 'steps' table. Remember to close the cursor!
-     *
-     * @param columns       the colums
-     * @param selection     the selection
-     * @param selectionArgs the selction arguments
-     * @param groupBy       the group by statement
-     * @param having        the having statement
-     * @param orderBy       the order by statement
-     * @return the cursor
-     */
     public Cursor query(final String[] columns, final String selection,
                         final String[] selectionArgs, final String groupBy, final String having,
                         final String orderBy, final String limit) {
@@ -93,21 +82,6 @@ public class Database extends SQLiteOpenHelper {
                 .query(DB_NAME, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
     }
 
-    /**
-     * Inserts a new entry in the database, if there is no entry for the given
-     * date yet. Steps should be the current number of steps and it's negative
-     * value will be used as offset for the new date. Also adds 'steps' steps to
-     * the previous day, if there is an entry for that date.
-     * <p/>
-     * This method does nothing if there is already an entry for 'date' - use
-     * {@link #updateSteps} in this case.
-     * <p/>
-     * To restore data from a backup, use {@link #insertDayFromBackup}
-     *
-     * @param date  the date in ms since 1970
-     * @param steps the current step value to be used as negative offset for the
-     *              new day; must be >= 0
-     */
     public void insertNewDay(long date, int steps) {
         getWritableDatabase().beginTransaction();
         try {
@@ -146,15 +120,6 @@ public class Database extends SQLiteOpenHelper {
                 " WHERE date = (SELECT MAX(date) FROM " + DB_NAME + ")");
     }
 
-    /**
-     * Inserts a new entry in the database, overwriting any existing entry for the given date.
-     * Use this method for restoring data from a backup.
-     *
-     * @param date  the date in ms since 1970
-     * @param steps the step value for 'date'; must be >= 0
-     * @return true if a new entry was created, false if there was already an
-     * entry for 'date' (and it was overwritten)
-     */
     public boolean insertDayFromBackup(long date, int steps) {
         getWritableDatabase().beginTransaction();
         boolean newEntryCreated = false;
